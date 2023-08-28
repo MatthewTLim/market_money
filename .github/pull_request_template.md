@@ -2,10 +2,9 @@
 
 # Relevant feature:
 
-# Specific feedback requests? Include file name and line:
-
 # Before submitting, check the following:
 - [] Entire test suite is passing
 - [] SimpleCov test percentage
+- [] Postman test is passing
 
-# Note any co-authors / anything else you'd like to add:
+
