@@ -5,6 +5,6 @@
 # Before submitting, check the following:
 - [] Entire test suite is passing
 - [] SimpleCov test percentage
-- [] Postman test passing
+- [] Postman test is passing
 
 
