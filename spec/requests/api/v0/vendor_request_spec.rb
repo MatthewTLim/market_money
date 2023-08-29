@@ -58,6 +58,52 @@ describe "Vendor endpoint" do
     expect(error_response[:errors][0]).to have_key(:detail)
     expect(error_response[:errors][0][:detail]).to eq("Couldn't find Vendor with 'id'=#{invalid_id}")
   end
+
+  it "can create a new vendor" do
+    vendor_params = ({
+      name: "test vendor",
+      description: "This is a test description",
+      contact_name: "Testy",
+      contact_phone: "123-123-1231",
+      credit_accepted: true
+    })
+
+    headers = {"CONTENT_TYPE" => "application/json"}
+
+    post api_v0_vendors_path, headers: headers, params: JSON.generate(vendor: vendor_params)
+
+    created_vendor = Vendor.last
+
+    expect(response).to be_successful
+
+    expect(created_vendor.name).to eq(vendor_params[:name])
+    expect(created_vendor.description).to eq(vendor_params[:description])
+    expect(created_vendor.contact_name).to eq(vendor_params[:contact_name])
+    expect(created_vendor.contact_phone).to eq(vendor_params[:contact_phone])
+    expect(created_vendor.credit_accepted).to eq(vendor_params[:credit_accepted])
+  end
+
+  it "returns an error if a field is left empty" do
+    vendor_params = ({
+      name: nil,
+      description: "This is a test description",
+      contact_name: "Testy",
+      contact_phone: "123-123-1231",
+      credit_accepted: true
+    })
+
+    headers = {"CONTENT_TYPE" => "application/json"}
+
+    post api_v0_vendors_path, headers: headers, params: JSON.generate(vendor: vendor_params)
+
+    expect(response).to have_http_status(:bad_request)
+
+    error_response = JSON.parse(response.body, symbolize_names: true)
+    # require 'pry'; binding.pry
+    expect(error_response).to have_key(:errors)
+    expect(error_response[:errors][0]).to have_key(:detail)
+    expect(error_response[:errors][0][:detail]).to eq(["Name can't be blank"])
+  end
 end
 
 
