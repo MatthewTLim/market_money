@@ -14,52 +14,41 @@ describe "Vendor endpoint" do
     end
   end
 
-  it " returns a list of vendors for a specific market" do
-    get "/api/v0/markets/#{@g_markets.first.id}/vendors"
+  it "returns a vendor" do
+    vendor_id = create(:vendor).id
 
+    get "/api/v0/vendors/#{vendor_id}"
     expect(response).to be_successful
 
-    vendors_data = JSON.parse(response.body)
+    vendor_data = JSON.parse(response.body)["data"]
 
-    expect(vendors_data).to have_key("data")
+    expect(vendor_data).to have_key("id")
+    expect(vendor_data).to have_key("type")
+    expect(vendor_data).to have_key("attributes")
 
-    vendors = vendors_data["data"]
+    attributes = vendor_data["attributes"]
 
-    vendors.each do |vendor|
+    expect(attributes).to have_key("name")
+    expect(attributes["name"]).to be_a(String)
 
-      attributes = vendor["attributes"]
+    expect(attributes).to have_key("description")
+    expect(attributes["description"]).to be_a(String)
 
-      expect(attributes).to have_key("name")
-      expect(attributes["name"]).to be_a(String)
+    expect(attributes).to have_key("contact_name")
+    expect(attributes["contact_name"]).to be_a(String)
 
-      expect(attributes).to have_key("description")
-      expect(attributes["description"]).to be_a(String)
+    expect(attributes).to have_key("contact_phone")
+    expect(attributes["contact_phone"]).to be_a(String)
 
-      expect(attributes).to have_key("contact_name")
-      expect(attributes["contact_name"]).to be_a(String)
-
-      expect(attributes).to have_key("contact_phone")
-      expect(attributes["contact_phone"]).to be_a(String)
-
-      expect(attributes).to have_key("credit_accepted")
-      expect(attributes['credit_accepted']).to be_a(TrueClass).or be_a(FalseClass)
-
-      expect(vendor).to have_key("id")
-      expect(vendor["id"]).to be_a(String)
-
-      expect(vendor).to have_key("type")
-      expect(vendor["type"]).to be_a(String)
-
-      expect(vendor).to have_key("attributes")
-      expect(vendor["attributes"]).to be_a(Hash)
-    end
+    expect(attributes).to have_key("credit_accepted")
+    expect(attributes['credit_accepted']).to be_a(TrueClass).or be_a(FalseClass)
   end
 
   it "returns an error if the market_id is invalid" do
     invalid_id = 123123123123
 
-    get "/api/v0/markets/#{invalid_id}/vendors"
-    
+    get "/api/v0/vendors/#{invalid_id}"
+
     expect(response).to have_http_status(:not_found)
 
 
@@ -67,6 +56,9 @@ describe "Vendor endpoint" do
 
     expect(error_response).to have_key(:errors)
     expect(error_response[:errors][0]).to have_key(:detail)
-    expect(error_response[:errors][0][:detail]).to eq("Couldn't find Market with 'id'=#{invalid_id}")
+    expect(error_response[:errors][0][:detail]).to eq("Couldn't find Vendor with 'id'=#{invalid_id}")
   end
 end
+
+
+
