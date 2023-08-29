@@ -1,7 +1,15 @@
 class Api::V0::MarketsController < ApplicationController
   def index
-    markets = Market.all.includes(:vendors)
-    market_response = MarketFacade.build_collection(markets)
-    render json:{ data: market_response }, status: :ok
+    render json: MarketSerializer.new(Market.all.includes(:vendors))
+  end
+
+  def show
+   begin
+    market = Market.find(params[:id])
+    render json: MarketSerializer.new(market)
+    rescue ActiveRecord::RecordNotFound => e
+    render json: { errors: [{ detail: e.message }] }, status: :not_found
+    end
   end
 end
+
