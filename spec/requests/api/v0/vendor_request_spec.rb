@@ -104,7 +104,44 @@ describe "Vendor endpoint" do
     expect(error_response[:errors][0]).to have_key(:detail)
     expect(error_response[:errors][0][:detail]).to eq(["Name can't be blank"])
   end
+
+  it "can update an existing vendors details" do
+    id = create(:vendor).id
+    previous_name = Vendor.last.name
+    update_vendor_params = ({ name: "Changed Name market" })
+    headers = {"CONTENT_TYPE" => "application/json"}
+
+    patch api_v0_vendor_path(id), headers: headers, params: JSON.generate(vendor: update_vendor_params)
+    update_vendor = Vendor.find_by(id: id)
+
+    expect(response).to be_successful
+    expect(update_vendor.name).to_not eq(previous_name)
+    expect(update_vendor.name).to eq("Changed Name market")
+  end
+
+  it "will not update a vendor if attribute is nil or empty" do
+    id = create(:vendor).id
+    update_vendor_params = ({ name: nil})
+    headers = {"CONTENT_TYPE" => "application/json"}
+
+    patch api_v0_vendor_path(id), headers: headers, params: JSON.generate(vendor: update_vendor_params)
+
+    expect(response).to have_http_status(:bad_request)
+    
+    error_response = JSON.parse(response.body, symbolize_names: true)
+
+    expect(error_response).to have_key(:errors)
+    expect(error_response[:errors][0]).to have_key(:detail)
+    expect(error_response[:errors][0][:detail]).to eq(["Name can't be blank"])
+  end
 end
+
+# id: 5592,
+#  name: "Dreamcatcher Gastropub Goods",
+#  description: "Offal swag kitsch typewriter photo booth marfa crucifix.",
+#  contact_name: "Oscar Ruecker",
+#  contact_phone: "712-714-4613",
+#  credit_accepted: false>
 
 
 
