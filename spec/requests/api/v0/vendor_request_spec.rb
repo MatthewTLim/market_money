@@ -134,6 +134,30 @@ describe "Vendor endpoint" do
     expect(error_response[:errors][0]).to have_key(:detail)
     expect(error_response[:errors][0][:detail]).to eq(["Name can't be blank"])
   end
+
+  it "can delete a vendor as well as its associations" do
+    id = create(:vendor).id
+
+    expect(Vendor.count).to eq(10)
+
+    delete api_v0_vendor_path(id)
+
+    expect(response).to be_successful
+    expect(Vendor.count).to eq(9)
+    expect{ Vendor.find(id) }.to raise_error(ActiveRecord::RecordNotFound)
+  end
+
+  it "can not delete a vendor if the provided id is invalid" do
+    invalid_id = 123123123
+
+    delete api_v0_vendor_path(invalid_id)
+
+    error_response = JSON.parse(response.body, symbolize_names: true)
+
+    expect(error_response).to have_key(:errors)
+    expect(error_response[:errors][0]).to have_key(:detail)
+    expect(error_response[:errors][0][:detail]).to eq("Couldn't find Vendor with 'id'=123123123")
+  end
 end
 
 
