@@ -127,7 +127,7 @@ describe "Vendor endpoint" do
     patch api_v0_vendor_path(id), headers: headers, params: JSON.generate(vendor: update_vendor_params)
 
     expect(response).to have_http_status(:bad_request)
-    
+
     error_response = JSON.parse(response.body, symbolize_names: true)
 
     expect(error_response).to have_key(:errors)
@@ -135,13 +135,6 @@ describe "Vendor endpoint" do
     expect(error_response[:errors][0][:detail]).to eq(["Name can't be blank"])
   end
 end
-
-# id: 5592,
-#  name: "Dreamcatcher Gastropub Goods",
-#  description: "Offal swag kitsch typewriter photo booth marfa crucifix.",
-#  contact_name: "Oscar Ruecker",
-#  contact_phone: "712-714-4613",
-#  credit_accepted: false>
 
 
 
