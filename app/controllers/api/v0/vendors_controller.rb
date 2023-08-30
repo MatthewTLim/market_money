@@ -45,6 +45,18 @@ class Api::V0::VendorsController < ApplicationController
     end
   end
 
+  def destroy
+    begin
+      vendor = Vendor.find(params[:id])
+
+      if vendor.destroy
+        render status: :no_content
+      end
+    rescue ActiveRecord::ActiveRecordError => e
+      render json: { errors: [{ detail: e.message }] }, status: :not_found
+    end
+  end
+
   private
 
   def vendor_params
