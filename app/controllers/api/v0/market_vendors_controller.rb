@@ -1,4 +1,5 @@
 class Api::V0::MarketVendorsController < ApplicationController
+  before_action :find_market_vendor, only: [:destroy]
   def create
     market_id = params[:market_id]
     vendor_id = params[:vendor_id]
@@ -18,6 +19,14 @@ class Api::V0::MarketVendorsController < ApplicationController
     end
   end
 
+  def destroy
+    if @market_vendor.destroy
+      render status: :no_content
+    else
+      render json: { errors: [{ detail: @market_vendor.errors.full_messages }] }, status: :not_found
+    end
+  end
+
   private
 
   def vendor_params
@@ -29,6 +38,11 @@ class Api::V0::MarketVendorsController < ApplicationController
     market = Market.find_by(id: market_id)
 
     !(vendor.present? && market.present?)
+  end
+
+  def find_market_vendor
+    @market_vendor = MarketVendor.find_by(market_id: params[:market_id], vendor_id: params[:vendor_id])
+    render json: { errors: [{ detail: "Market vendor association not found." }] }, status: :not_found unless @market_vendor
   end
 end
 
