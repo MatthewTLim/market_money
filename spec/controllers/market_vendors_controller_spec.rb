@@ -22,7 +22,7 @@ RSpec.describe Api::V0::MarketVendorsController, type: :controller do
     it 'renders an error response if the market vendor association does not exist' do
       @market = create(:market)
       @vendor = create(:vendor)
-      
+
       allow(controller).to receive(:params).and_return({ market_id: @market.id, vendor_id: @vendor.id })
       allow(@MarketVendor).to receive(:find_by).and_return(nil)
 
