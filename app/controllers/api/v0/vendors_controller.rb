@@ -1,66 +1,50 @@
 class Api::V0::VendorsController < ApplicationController
+  before_action :find_vendor, only: [:show, :update, :destroy]
+
   def index
-    begin
-      @market = Market.find(params[:market_id])
-      render json: VendorSerializer.new(@market.vendors)
-      rescue ActiveRecord::RecordNotFound => e
-      render json: { errors: [{ detail: e.message }] }, status: :not_found
-    end
+    @market = Market.find(params[:market_id])
+    render json: VendorSerializer.new(@market.vendors)
+  rescue ActiveRecord::RecordNotFound => e
+    render json: { errors: [{ detail: e.message }] }, status: :not_found
   end
 
   def show
-    begin
-      vendor = Vendor.find(params[:id])
-      render json: VendorSerializer.new(vendor)
-      rescue ActiveRecord::RecordNotFound => e
-      render json: { errors: [{ detail: e.message }] }, status: :not_found
-    end
+    render json: VendorSerializer.new(@vendor)
   end
 
   def create
-    begin
-      vendor = Vendor.new(vendor_params)
+    vendor = Vendor.new(vendor_params)
 
-      if vendor.save
-        render json: VendorSerializer.new(vendor), status: :created
-      else
-        render json: { errors: [{ detail: vendor.errors.full_messages }] }, status: :bad_request
-      end
-    rescue ActiveRecord::ActiveRecordError => e
-      render json: { errors: [{ detail: e.message }] }, status: :bad_request
+    if vendor.save!
+      render json: VendorSerializer.new(vendor), status: :created
+    else
+      render json: { errors: [{ detail: vendor.errors.full_messages }] }, status: :bad_request
     end
+  rescue ActiveRecord::ActiveRecordError => e
+    render json: { errors: [{ detail: e.message }] }, status: :bad_request
   end
 
   def update
-    begin
-      vendor = Vendor.find(params[:id])
-
-      if vendor.update(vendor_params)
-        render json: VendorSerializer.new(Vendor.update(params[:id], vendor_params))
-      else
-        render json: { errors: [{ detail: vendor.errors.full_messages }] }, status: :bad_request
-      end
-    rescue ActiveRecord::ActiveRecordError => e
-      render json: { errors: [{ detail: e.message }] }, status: :bad_request
+    if @vendor.update(vendor_params)
+      render json: VendorSerializer.new(@vendor)
+    else
+      render json: { errors: [{ detail: @vendor.errors.full_messages }] }, status: :bad_request
     end
   end
 
   def destroy
-    begin
-      vendor = Vendor.find(params[:id])
-
-      if vendor.destroy
-        render status: :no_content
-      end
-    rescue ActiveRecord::ActiveRecordError => e
-      render json: { errors: [{ detail: e.message }] }, status: :not_found
-    end
+    render status: :no_content if @vendor.destroy
   end
 
   private
 
   def vendor_params
-    params.require(:vendor).permit(:name, :description, :contact_name, :contact_phone, :credit_accepted )
+    params.require(:vendor).permit(:name, :description, :contact_name, :contact_phone, :credit_accepted)
+  end
+
+  def find_vendor
+    @vendor = Vendor.find(params[:id])
+  rescue ActiveRecord::RecordNotFound => e
+    render json: { errors: [{ detail: e.message }] }, status: :not_found
   end
 end
-
