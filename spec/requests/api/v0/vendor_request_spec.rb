@@ -102,7 +102,7 @@ describe "Vendor endpoint" do
     # require 'pry'; binding.pry
     expect(error_response).to have_key(:errors)
     expect(error_response[:errors][0]).to have_key(:detail)
-    expect(error_response[:errors][0][:detail]).to eq(["Name can't be blank"])
+    expect(error_response[:errors][0][:detail]).to eq("Validation failed: Name can't be blank")
   end
 
   it "can update an existing vendors details" do
@@ -121,7 +121,7 @@ describe "Vendor endpoint" do
 
   it "will not update a vendor if attribute is nil or empty" do
     id = create(:vendor).id
-    update_vendor_params = ({ name: nil})
+    update_vendor_params = ({ credit_accepted: nil})
     headers = {"CONTENT_TYPE" => "application/json"}
 
     patch api_v0_vendor_path(id), headers: headers, params: JSON.generate(vendor: update_vendor_params)
@@ -132,7 +132,7 @@ describe "Vendor endpoint" do
 
     expect(error_response).to have_key(:errors)
     expect(error_response[:errors][0]).to have_key(:detail)
-    expect(error_response[:errors][0][:detail]).to eq(["Name can't be blank"])
+    expect(error_response[:errors][0][:detail]).to eq(["Credit accepted is not included in the list"])
   end
 
   it "can delete a vendor as well as its associations" do
