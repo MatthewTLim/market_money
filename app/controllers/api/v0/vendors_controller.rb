@@ -17,8 +17,6 @@ class Api::V0::VendorsController < ApplicationController
 
     if vendor.save!
       render json: VendorSerializer.new(vendor), status: :created
-    else
-      render json: { errors: [{ detail: vendor.errors.full_messages }] }, status: :bad_request
     end
   rescue ActiveRecord::ActiveRecordError => e
     render json: { errors: [{ detail: e.message }] }, status: :bad_request
