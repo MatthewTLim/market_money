@@ -182,4 +182,95 @@ describe "Markets API" do
     expect(error_response[:errors][0]).to have_key(:detail)
     expect(error_response[:errors][0][:detail]).to eq("Couldn't find Market with 'id'=#{invalid_id}")
   end
+
+
+
+  describe "#search" do
+    it "returns markets matching the state parameter" do
+      market1 = create(:market, state: "CA")
+      market2 = create(:market, state: "CA")
+      create(:market, state: "NY")
+
+      get "/api/v0/markets/search", params: { state: "CA" }
+
+      expect(response).to have_http_status(:ok)
+
+      expect(JSON.parse(response.body)["data"].length).to eq(2)
+    end
+
+    it "returns markets matching the state and city parameter" do
+      market1 = create(:market, state: "CA", city: "Los Angeles")
+      market2 = create(:market, state: "CA", city: "Los Angeles")
+      market3 = create(:market, state: "NY")
+
+      get "/api/v0/markets/search", params: { state: "CA", city: ("Los Angeles") }
+
+      expect(response).to have_http_status(:ok)
+
+      expect(JSON.parse(response.body)["data"].length).to eq(2)
+    end
+
+    it "returns markets matching the state, city, and name parameters" do
+      market1 = create(:market, state: "CA", city: "San Francisco", name: "Farmers Market")
+      market2 = create(:market, state: "CA", city: "San Francisco", name: "Farmers Market")
+      create(:market, state: "NY", city: "New York", name: "Local Market")
+
+      get "/api/v0/markets/search", params: { state: "CA", city: "San Francisco", name: "Farmers Market" }
+
+      expect(response).to have_http_status(:ok)
+      expect(JSON.parse(response.body)["data"].length).to eq(2)
+    end
+
+    it "returns markets matching the state and name parameter" do
+      market1 = create(:market, state: "CA", name: "Farmers Market")
+      market2 = create(:market, state: "CA", name: "Farmers Market")
+      market3 = create(:market, name: "Farmers Market")
+      market4 = create(:market)
+
+
+      get "/api/v0/markets/search", params: { name: "Farmers Market", state: "CA" }
+
+      expect(response).to have_http_status(:ok)
+      require 'pry'; binding.pry
+      expect(JSON.parse(response.body)["data"].length).to eq(2)
+    end
+
+    it "returns markets matching the name parameter" do
+      market1 = create(:market, name: "Farmers Market")
+      market2 = create(:market, name: "Farmers Market")
+      market3 = create(:market, name: "Other Market")
+
+      create(:market, name: "Local Market")
+
+      get "/api/v0/markets/search", params: { name: "Farmers Market" }
+
+      expect(response).to have_http_status(:ok)
+      expect(JSON.parse(response.body)["data"].length).to eq(2)
+    end
+
+    it "returns an error when just a city parameter is passed" do
+      market1 = create(:market, city: "San Francisco")
+      market2 = create(:market, city: "San Francisco")
+      create(:market, city: "New York")
+
+      get "/api/v0/markets/search", params: { city: "San Francisco" }
+
+      expect(response).to have_http_status(:unprocessable_entity)
+      expect(JSON.parse(response.body)["errors"][0]["detail"]).to eq("Invalid combination of parameters.")
+    end
+
+    it "returns an error with invalid parameter combination" do
+      get "/api/v0/markets/search", params: { city: "San Francisco", name: "Farmers Market" }
+
+      expect(response).to have_http_status(:unprocessable_entity)
+      expect(JSON.parse(response.body)["errors"][0]["detail"]).to eq("Invalid combination of parameters.")
+    end
+
+    it "returns an empty array if no markets match the parameters" do
+      get "/api/v0/markets/search", params: { state: "TX" }
+
+      expect(response).to have_http_status(:ok)
+      expect(JSON.parse(response.body)["data"]).to be_empty
+    end
+  end
 end

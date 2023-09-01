@@ -16,18 +16,22 @@ RSpec.describe Market, type: :model do
       market = Market.new(name: nil)
       expect(market).to_not be_valid
     end
+
     it "is not valid without a street" do
       market = Market.new(street: nil)
       expect(market).to_not be_valid
     end
+
     it "is not valid without a city" do
       market = Market.new(city: nil)
       expect(market).to_not be_valid
     end
+
     it "is not valid without a state" do
       market = Market.new(state: nil)
       expect(market).to_not be_valid
     end
+    
     it "is not valid without a zip" do
       market = Market.new(zip: nil)
       expect(market).to_not be_valid

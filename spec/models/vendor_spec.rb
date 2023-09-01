@@ -16,14 +16,17 @@ RSpec.describe Vendor, type: :model do
       vendor = Vendor.new(name: nil)
       expect(vendor).to_not be_valid
     end
+
     it "is not valid without a contact_name" do
       vendor = Vendor.new(contact_name: nil)
       expect(vendor).to_not be_valid
     end
+
     it "is not valid without a contact_phone" do
       vendor = Vendor.new(contact_phone: nil)
       expect(vendor).to_not be_valid
     end
+
     it "is not valid without a credit_accepted" do
       vendor = Vendor.new(credit_accepted: nil)
       expect(vendor).to_not be_valid
